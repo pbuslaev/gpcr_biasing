@@ -70,7 +70,9 @@ def create_resid_generic_mapping(pdb_file1, pdb_file2):
     return resid_generic_map
 
 
-def calculate_distances_from_pairs(topology, trajectory, mapping, pairs_file):
+def calculate_distances_from_pairs(
+    topology, trajectory, mapping, pairs_file, idx
+):
     """
     Calculate distances between CA/CB atoms for residue pairs from a PAIRS file.
 
@@ -84,6 +86,8 @@ def calculate_distances_from_pairs(topology, trajectory, mapping, pairs_file):
         Dictionary mapping resid to generic numbers
     pairs_file : str
         Path to file containing pairs of generic numbers (one pair per line)
+    idx : int
+        Id of the trajectory used.
 
     Returns
     -------
@@ -143,12 +147,24 @@ def calculate_distances_from_pairs(topology, trajectory, mapping, pairs_file):
 
     dists = np.array(dists)
     dists = pd.DataFrame(dists, columns=pair_labels)
+    dists["idx"] = idx
+
     return dists
 
 
 ### Testing
 if __name__ == "__main__":
-    trajs = ["id_123"]
+    trajs = [
+        "id_123",
+        "id_83",
+        "id_99",
+        "id_115",
+        "id_117",
+        "id_121",
+        "id_124",
+        "id_160",
+    ]
+    distances = None
     for f in trajs:
         id = int(f.split("_")[1])
         print(f"Mapping for trajectory {id}")
@@ -161,5 +177,14 @@ if __name__ == "__main__":
         backmaping = {v: k for k, v in mapping.items()}
         # print(mapping)
         # print(backmaping)
-        distances = calculate_distances_from_pairs(psf, trj, mapping, PAIRS)
-        distances.to_csv("dataset.csv", index=False)
+        idx = int(f.split("_")[1])
+        tmp_distances = calculate_distances_from_pairs(
+            psf, trj, mapping, PAIRS, idx
+        )
+        if distances is None:
+            distances = tmp_distances
+        else:
+            distances = pd.concat(
+                [distances, tmp_distances], ignore_index=True
+            )
+    distances.to_csv("dataset.csv", index=False)

@@ -1,0 +1,11 @@
+# mdanalysis
+conda create -p mdanalysis python=3.13
+conda activate mdanalysis
+mamba install MDAnalysis 
+
+# pytorch
+conda create -p pytorch python=3.11
+conda activate pytorch
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126
+pip install lightning torchmetrics tensorboard matplotlib numpy seaborn
+pip install pandas
